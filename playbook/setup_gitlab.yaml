@@ -14,17 +14,6 @@
     - name: Install GitLab Runner
       apt:
         deb: /tmp/gitlab-runner_amd64.deb
-      become: true
-
-    - name: Add gitlab-runner user to the docker group
-      user:
-        name: gitlab-runner
-        groups: docker
-        append: yes
-
-    - name: Set group_name fact
-      set_fact:
-        group_name: "{{ group_names | intersect(groups.keys()) | first }}"
 
     - name: Register GitLab Runner
       shell: |
@@ -34,7 +23,7 @@
           --registration-token "{{ gitlab_runner_token }}" \
           --executor "shell" \
           --description "{{ inventory_hostname }}" \
-          --tag-list "{{ group_name }}" \
+          --tag-list "runner" \
           --run-untagged="true" \
           --locked="false"
       become: true
