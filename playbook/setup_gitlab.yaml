@@ -1,0 +1,42 @@
+---
+- name: Configure GitLab Runner
+  hosts: all
+  become: true
+  vars_files:
+    - vars.yaml
+  tasks:
+    - name: Download GitLab Runner
+      get_url:
+        url: "https://s3.dualstack.us-east-1.amazonaws.com/gitlab-runner-downloads/latest/deb/gitlab-runner_amd64.deb"
+        dest: /tmp/gitlab-runner_amd64.deb
+        mode: '0440'
+
+    - name: Install GitLab Runner
+      apt:
+        deb: /tmp/gitlab-runner_amd64.deb
+      become: true
+
+    - name: Add gitlab-runner user to the docker group
+      user:
+        name: gitlab-runner
+        groups: docker
+        append: yes
+
+    - name: Set group_name fact
+      set_fact:
+        group_name: "{{ group_names | intersect(groups.keys()) | first }}"
+
+    - name: Register GitLab Runner
+      shell: |
+        gitlab-runner register \
+          --non-interactive \
+          --url "{{ gitlab_url }}" \
+          --registration-token "{{ gitlab_runner_token }}" \
+          --executor "shell" \
+          --description "{{ inventory_hostname }}" \
+          --tag-list "{{ group_name }}" \
+          --run-untagged="true" \
+          --locked="false"
+      become: true
+      environment:
+        GITLAB_RUNNER_TOKEN: "{{ gitlab_runner_token }}"

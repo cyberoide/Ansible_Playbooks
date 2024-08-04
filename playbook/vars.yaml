@@ -1,0 +1,16 @@
+# vars.yaml
+
+# General variables
+group_names:
+  - testing
+  - acceptance
+  - production
+
+# GitLab variables
+gitlab_url: "https://gitlab.example.com/"
+
+# Sensitive variables (Encrypt this file using Ansible Vault)
+gitlab_runner_token: !vault |
+  $ANSIBLE_VAULT;1.1;AES256
+  616234634363636663636363636363636363663636363636363636363636363636363636363636363636363636363636
+  363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636
